@@ -1,6 +1,8 @@
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -110,7 +112,7 @@ public class EnergyCheckUtils {
 //        String framework = args[0];
         String framework = "1";
         System.out.println("framework");
-        
+
         if (framework.equals("1")) {
             Date date = new Date();
             date.getTime();
@@ -137,7 +139,6 @@ public class EnergyCheckUtils {
                 long post = System.currentTimeMillis();
                 double postTime = post / 100000;
                 double time = postTime - preTime;
-                System.out.println(time);
                 data1 = new Datos(
                         String.valueOf(((after[0] - before[0]) / 10.0)),
                         String.valueOf(((after[1] - before[1]) / 10.0)),
@@ -272,34 +273,91 @@ public class EnergyCheckUtils {
         String appRealPID = "";
         String[] name = path.split("/");
         String name3 = name[4];
-        System.out.println(name3);
+        System.out.println(path);
         Process appTest = Runtime.getRuntime().exec("java -jar " + path);
         appTest.waitFor(2, TimeUnit.SECONDS);
-//        ProcessBuilder builder = new ProcessBuilder("ps ax | grep " + name3);
-//        builder.redirectErrorStream(true);
-//        Process process = builder.start();
-//        InputStream is = process.getInputStream();
-//        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        Process builder = Runtime.getRuntime().exec("sudo bash /home/roberth/getPID.sh " + name3);
+        System.out.println(name3);
+        InputStream is = builder.getInputStream();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(builder.getInputStream()));
         Process getPID = Runtime.getRuntime().exec("/home/roberth/powerApiProccess.sh " + name3);
-        InputStream is = getPID.getInputStream();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-//
+
         String line = "";
         while ((line = reader.readLine()) != null) {
+            System.out.println(reader);
             String[] pid = line.split(" ");
+            System.out.println(pid[0]);
             appRealPID = pid[0];
             break;
         }
         System.out.println(appRealPID);
-//        Process runPowerAPI = Runtime.getRuntime().exec(
-//                "/home/roberth/Downloads/powerapi-cli-4.2.1 ./bin/powerapi \\\n"
-//                + "    modules rapl \\\n"
-//                + "    monitor \\\n"
-//                + "      --frequency 500 \\\n"
-//                + "      --pids" + appRealPID + " \\\n"
-//                + "      --console > /home/roberth/Desktop/Data.csv"
-//        );
-//        runPowerAPI.waitFor(2, TimeUnit.MINUTES);
+        Process runPowerAPI = Runtime.getRuntime().exec(
+                "sudo bash /home/roberth/powerAPI.sh " + appRealPID
+        );
+        runPowerAPI.waitFor(2, TimeUnit.MINUTES);
+        clean();
+//        Process killer = Runtime.getRuntime().exec("sudo kill "+ appRealPID);
+//        killer.waitFor();
+    }
+    
+    public static void clean(){
+        String csvFile = "/home/roberth/Desktop/Data.csv";
+        BufferedReader br = null;
+        String line2 = "";
+        String cvsSplitBy = ";";
+
+        try {
+
+            br = new BufferedReader(new FileReader(csvFile));
+            File f = new File("/home/roberth/Desktop/Datos/Resultados_csv");
+            FileWriter csvWriter = null;
+            csvWriter = new FileWriter(f, true);
+            while ((line2 = br.readLine()) != null) {
+
+//                System.out.println(line);
+                // use comma as separator
+                String[] country = line2.split(cvsSplitBy);
+//                System.out.println("Country [code= " + country[1] + " , name=" + country[4] + "]");
+                String string = country[1];
+                String string2 = country[4];
+                if (string.length() > 0) {
+                    String[] parts = string.split("=");
+                    String[] parts2 = string2.split(" ");
+                    String time = parts[1];
+                    double intTime = Double.parseDouble(time);
+                    intTime = 25569 + intTime / 86400000;
+                    intTime = intTime / 86400000;
+                    intTime = 25569 + intTime;
+                    String power = parts2[0];
+                    String[] parts3 = power.split("=");
+                    String jpower = parts3[1];
+//                    String power = parts[2];
+                    System.out.println(intTime + " " + jpower);
+                    csvWriter.append(String.valueOf(intTime));
+                    csvWriter.append(";");
+                    csvWriter.append(String.valueOf(jpower));
+                    csvWriter.append("\n");
+
+                }
+//                
+                // 034556F
+
+            }
+            csvWriter.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                    
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }
 
@@ -315,6 +373,18 @@ class Datos {
         this.data1 = data1;
         this.data2 = data2;
         this.date = date;
+    }
+
+}
+
+class DatosPower {
+
+    public String data0;
+    public String data1;
+
+    DatosPower(String data0, String data1) {
+        this.data0 = data0;
+        this.data1 = data1;
     }
 
 }

@@ -1,6 +1,9 @@
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -74,7 +77,15 @@ public class testUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        worker.execute();
+        Desktop desktop = java.awt.Desktop.getDesktop();
+        try {
+            URI openURL = new URI("http://127.0.0.1:5500/index.html");
+            desktop.browse(openURL);
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(testUI.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(testUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {

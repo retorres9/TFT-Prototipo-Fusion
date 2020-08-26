@@ -1,8 +1,10 @@
 
 import java.awt.Color;
 import java.io.File;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.ButtonGroup;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
@@ -22,12 +24,19 @@ public class InterfazFusion extends javax.swing.JFrame {
     /**
      * Creates new form InterfazFusion
      */
+    ButtonGroup framework = new ButtonGroup();
     public InterfazFusion() {
         initComponents();
         this.setLocationRelativeTo(null);
         this.setTitle("Prototipo Fusion");
         btnPause.setEnabled(false);
         btnStop.setEnabled(false);
+        seleccionFramework();
+    }
+    
+    public void seleccionFramework() {
+        framework.add(rbtnJRAPL);
+        framework.add(rbtnPower);
     }
 
     /**
@@ -48,8 +57,8 @@ public class InterfazFusion extends javax.swing.JFrame {
         btnStop = new javax.swing.JButton();
         btnPause = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
-        jRadioButton1 = new javax.swing.JRadioButton();
-        jRadioButton2 = new javax.swing.JRadioButton();
+        rbtnJRAPL = new javax.swing.JRadioButton();
+        rbtnPower = new javax.swing.JRadioButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         txtStatus = new javax.swing.JTextArea();
         jButton2 = new javax.swing.JButton();
@@ -94,9 +103,9 @@ public class InterfazFusion extends javax.swing.JFrame {
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Seleccione un framework"));
 
-        jRadioButton1.setText("jRAPL");
+        rbtnJRAPL.setText("jRAPL");
 
-        jRadioButton2.setText("PowerAPI");
+        rbtnPower.setText("PowerAPI");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -105,17 +114,17 @@ public class InterfazFusion extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jRadioButton1)
-                    .addComponent(jRadioButton2))
+                    .addComponent(rbtnJRAPL)
+                    .addComponent(rbtnPower))
                 .addContainerGap(188, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(26, 26, 26)
-                .addComponent(jRadioButton1)
+                .addComponent(rbtnJRAPL)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jRadioButton2)
+                .addComponent(rbtnPower)
                 .addContainerGap(24, Short.MAX_VALUE))
         );
 
@@ -213,9 +222,19 @@ public class InterfazFusion extends javax.swing.JFrame {
         String strFileTested = txtPath.getText();
         File fileTested = new File(strFileTested);
         if (fileTested.exists()) {
-            worker.execute();
-            txtStatus.setCaretColor(Color.GREEN);
-            txtStatus.setText("La medición ha empezado...");
+            if (rbtnJRAPL.isSelected()) {
+                worker.execute();
+                txtStatus.setText("La medición ha empezado...\nObteniendo datos...");
+            }
+            if (rbtnPower.isSelected()){
+                try {
+                    EnergyCheckUtils.powerAPI(strFileTested);
+                } catch (IOException ex) {
+                    Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
 //                EnergyCheckUtils.jrapl("/home/roberth/Downloads/Calculadora.jar");
         }
         if (!fileTested.exists()) {
@@ -236,77 +255,6 @@ public class InterfazFusion extends javax.swing.JFrame {
 
     }//GEN-LAST:event_jButton2ActionPerformed
 
-//    SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
-//            @Override
-//            protected Boolean doInBackground() throws Exception {
-//                DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-//
-//                String csvFile = "/home/roberth/Desktop/test.csv";
-//                BufferedReader br = null;
-//                String line = "";
-//                String cvsSplitBy = ";";
-//                int cont = 0;
-//                try {
-////            Class.forName("com.mysql.jdbc.Driver");
-//                    Connection con = null;
-//                    PreparedStatement ps = null;
-//                    con = DriverManager.getConnection("jdbc:mysql://localhost:3306/fusionDB", "root", "12345678");
-//
-//                    br = new BufferedReader(new FileReader(csvFile));
-//                    while ((line = br.readLine()) != null) {
-//
-//                        // use comma as separator
-//                        if (cont != 0) {
-//                            System.out.println(cont);
-//                            String query = "INSERT INTO data (id, hour, DRAMIncrease, "
-//                                    + "CPUIncrease,PKGIncrease) VALUES(?,?,?,?,?)";
-//                            ps = con.prepareStatement(query);
-//                            ps.setInt(1, 1);
-//
-//                            String[] country = line.split(cvsSplitBy);
-//                            ps.setString(2, country[3]);
-//                            ps.setDouble(3, Double.parseDouble(country[4]));
-//                            ps.setDouble(4, Double.parseDouble(country[5]));
-//                            ps.setDouble(5, Double.parseDouble(country[6]));
-//                            dataset.setValue(Double.parseDouble(country[4]), "CPU", country[3]);
-//                            ps.executeUpdate();
-//                        }
-//                        cont++;
-////                System.out.println("Country [code= " + country[4] + " , name=" + country[5] + "]");
-//                    }
-//
-//                } catch (FileNotFoundException e) {
-//                    e.printStackTrace();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                } catch (SQLException ex) {
-//                    Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
-//                } finally {
-//                    if (br != null) {
-//                        try {
-//                            br.close();
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                }
-//
-////        dataset.setValue(23.0, "VAlues", "Pressure");
-////        dataset.setValue(22.0, "VAlues", "Pressure2");
-////        dataset.setValue(24.0, "VAlues", "Pressure3");
-////        dataset.setValue(27.0, "VAlues", "Pressure4");
-//                JFreeChart chart = ChartFactory.createLineChart("Grafica", "valor1", "VAlor2", dataset);
-//                chart.setBackgroundPaint(Color.LIGHT_GRAY);
-//                chart.getTitle().setPaint(Color.BLACK);
-//                CategoryPlot plot = chart.getCategoryPlot();
-//                plot.setRangeGridlinePaint(Color.BLUE);
-//                ChartFrame frame = new ChartFrame("bar for parameters", chart);
-//                frame.setVisible(true);
-//                frame.setSize(450, 350);
-//                return true;
-//            }
-//            
-//        };
     SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
         @Override
         protected Boolean doInBackground() throws Exception {
@@ -315,8 +263,6 @@ public class InterfazFusion extends javax.swing.JFrame {
                 File fileTested = new File(strFileTested);
                 if (fileTested.exists()) {
                     System.out.println("workerui");
-//                    txtStatus.setCaretColor(Color.GREEN);
-//                    txtStatus.setText("La medición ha empezado...");
                     EnergyCheckUtils.framework(strFileTested);
                     while (EnergyCheckUtils.lock == true) {
                         System.out.println("1");
@@ -328,15 +274,6 @@ public class InterfazFusion extends javax.swing.JFrame {
             } catch (InterruptedException ex) {
                 Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
             }
-//                finally {
-//                    if (br != null) {
-//                        try {
-//                            br.close();
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                }
             return true;
         }
 
@@ -408,10 +345,10 @@ public class InterfazFusion extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JRadioButton jRadioButton1;
-    private javax.swing.JRadioButton jRadioButton2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JRadioButton rbtnJRAPL;
+    private javax.swing.JRadioButton rbtnPower;
     private javax.swing.JTextField txtPath;
     private javax.swing.JTextArea txtStatus;
     // End of variables declaration//GEN-END:variables
