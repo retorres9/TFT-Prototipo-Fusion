@@ -2,6 +2,8 @@
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ButtonGroup;
@@ -25,6 +27,9 @@ public class InterfazFusion extends javax.swing.JFrame {
      * Creates new form InterfazFusion
      */
     ButtonGroup framework = new ButtonGroup();
+    EnergyCheckUtils energy = new EnergyCheckUtils();
+    public String path = "";
+
     public InterfazFusion() {
         initComponents();
         this.setLocationRelativeTo(null);
@@ -33,7 +38,7 @@ public class InterfazFusion extends javax.swing.JFrame {
         btnStop.setEnabled(false);
         seleccionFramework();
     }
-    
+
     public void seleccionFramework() {
         framework.add(rbtnJRAPL);
         framework.add(rbtnPower);
@@ -53,20 +58,24 @@ public class InterfazFusion extends javax.swing.JFrame {
         jSeparator1 = new javax.swing.JSeparator();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        btnStart = new javax.swing.JButton();
-        btnStop = new javax.swing.JButton();
-        btnPause = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         rbtnJRAPL = new javax.swing.JRadioButton();
         rbtnPower = new javax.swing.JRadioButton();
+        btnStart = new javax.swing.JButton();
+        btnStop = new javax.swing.JButton();
+        btnPause = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         txtStatus = new javax.swing.JTextArea();
         jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        txtPath.setText("/path/to/file");
-        txtPath.setFocusable(false);
+        txtPath.setText("/home/roberth/Desktop/Hilo.jar");
+        txtPath.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtPathActionPerformed(evt);
+            }
+        });
 
         jButton1.setText("Buscar");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -79,6 +88,12 @@ public class InterfazFusion extends javax.swing.JFrame {
         jLabel1.setText("Prototipo Fusion");
 
         jLabel2.setText("Seleccione la ruta de la aplicacion a medir");
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Seleccione un framework"));
+
+        rbtnJRAPL.setText("jRAPL");
+
+        rbtnPower.setText("PowerAPI");
 
         btnStart.setText("Empezar medición");
         btnStart.addActionListener(new java.awt.event.ActionListener() {
@@ -101,12 +116,6 @@ public class InterfazFusion extends javax.swing.JFrame {
             }
         });
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Seleccione un framework"));
-
-        rbtnJRAPL.setText("jRAPL");
-
-        rbtnPower.setText("PowerAPI");
-
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -114,18 +123,31 @@ public class InterfazFusion extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(rbtnJRAPL)
-                    .addComponent(rbtnPower))
-                .addContainerGap(188, Short.MAX_VALUE))
+                    .addComponent(rbtnPower)
+                    .addComponent(rbtnJRAPL))
+                .addGap(36, 36, 36)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnStart, javax.swing.GroupLayout.DEFAULT_SIZE, 307, Short.MAX_VALUE)
+                    .addComponent(btnStop, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnPause, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(33, 33, 33))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(26, 26, 26)
-                .addComponent(rbtnJRAPL)
+                .addContainerGap(16, Short.MAX_VALUE)
+                .addComponent(btnStart)
+                .addGap(12, 12, 12)
+                .addComponent(btnPause)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnStop)
+                .addContainerGap())
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(27, 27, 27)
+                .addComponent(rbtnJRAPL)
+                .addGap(18, 18, 18)
                 .addComponent(rbtnPower)
-                .addContainerGap(24, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         txtStatus.setColumns(20);
@@ -144,6 +166,10 @@ public class InterfazFusion extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jLabel1)
+                .addGap(207, 207, 207))
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -160,18 +186,8 @@ public class InterfazFusion extends javax.swing.JFrame {
                                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 304, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jButton2))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(btnStop, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(btnPause, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(btnStart, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addGap(18, 18, 18)
-                                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap(43, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jLabel1)
-                .addGap(207, 207, 207))
+                            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(49, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -181,28 +197,18 @@ public class InterfazFusion extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(2, 2, 2)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel2)
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButton1)
-                            .addComponent(txtPath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(30, 30, 30)
-                                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(41, 41, 41)
-                                .addComponent(btnStart)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(btnPause)
-                                .addGap(8, 8, 8)
-                                .addComponent(btnStop)))
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jButton2))
-                .addContainerGap(56, Short.MAX_VALUE))
+                .addComponent(jLabel2)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1)
+                    .addComponent(txtPath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addContainerGap(46, Short.MAX_VALUE))
         );
 
         pack();
@@ -220,70 +226,103 @@ public class InterfazFusion extends javax.swing.JFrame {
 
     private void btnStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStartActionPerformed
         String strFileTested = txtPath.getText();
+        path = strFileTested;
+        EnergyCheckUtils.pathApp = strFileTested;
+        EnergyCheckUtils.flag = true;
         File fileTested = new File(strFileTested);
-        if (fileTested.exists()) {
-            if (rbtnJRAPL.isSelected()) {
-                worker.execute();
-                txtStatus.setText("La medición ha empezado...\nObteniendo datos...");
-            }
-            if (rbtnPower.isSelected()){
-                try {
-                    EnergyCheckUtils.powerAPI(strFileTested);
-                } catch (IOException ex) {
-                    Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
+        ExecutorService exec = Executors.newSingleThreadExecutor();
+        if (paused == false) {
+            if (fileTested.exists()) {
+                if (rbtnJRAPL.isSelected()) {
+                    exec.submit(worker);
+                    txtStatus.setText("La medición ha empezado...\nObteniendo datos...");
                 }
-            }
+                if (rbtnPower.isSelected()) {
+                    try {
+                        energy.powerAPI(strFileTested);
+                    } catch (IOException ex) {
+                        Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
 //                EnergyCheckUtils.jrapl("/home/roberth/Downloads/Calculadora.jar");
+            }
+
+            if (!fileTested.exists()) {
+                JOptionPane.showMessageDialog(this, "La ruta especificada del archivo de prueba no es válido", "Aviso!", JOptionPane.ERROR_MESSAGE);
+            }
+
         }
-        if (!fileTested.exists()) {
-            JOptionPane.showMessageDialog(this, "La ruta especificada del archivo de prueba no es válido", "Aviso!", JOptionPane.ERROR_MESSAGE);
+        if (paused == true) {
+            EnergyCheckUtils.flag = true;
         }
+
     }//GEN-LAST:event_btnStartActionPerformed
 
     private void btnPauseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPauseActionPerformed
+        paused = true;
+        btnStart.setEnabled(true);
         txtStatus.setText("La medición se ha pausado");
     }//GEN-LAST:event_btnPauseActionPerformed
 
     private void btnStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStopActionPerformed
+//        EnergyCheckUtils.flag = false;
+
+        btnStart.setEnabled(true);
+        btnPause.setEnabled(false);
         txtStatus.setText("La medición se ha detenido");
     }//GEN-LAST:event_btnStopActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-
+        try {
+            Process nav = Runtime.getRuntime().exec(" sh /home/roberth/nav.sh");
+        } catch (IOException ex) {
+            Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
     }//GEN-LAST:event_jButton2ActionPerformed
 
-    SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+    private void txtPathActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPathActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtPathActionPerformed
+    boolean paused = false;
+    Runnable worker = new Runnable() {
         @Override
-        protected Boolean doInBackground() throws Exception {
+        public void run() {
             try {
                 String strFileTested = txtPath.getText();
                 File fileTested = new File(strFileTested);
-                if (fileTested.exists()) {
-                    System.out.println("workerui");
-                    EnergyCheckUtils.framework(strFileTested);
-                    while (EnergyCheckUtils.lock == true) {
-                        System.out.println("1");
-                    }
+                whenStarted();
+                energy.framework(strFileTested);
+                System.out.println("here runn");
+                while (EnergyCheckUtils.lock == true) {
+                    System.out.println("1");
                 }
+                EnergyCheckUtils.flag = true;
+                whenFinished();
                 if (!fileTested.exists()) {
 //                    JOptionPane.showMessageDialog(this, "La ruta especificada del archivo de prueba no es válido", "Aviso!", JOptionPane.ERROR_MESSAGE);
                 }
             } catch (InterruptedException ex) {
                 Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
             }
-            return true;
         }
-
-        @Override
-        protected void done() {
-            EnergyCheckUtils.flag = false;
-            changeValues();
-        }
-
     };
+
+    public void whenStarted() {
+        btnPause.setEnabled(true);
+        btnStop.setEnabled(true);
+        btnStart.setEnabled(false);
+    }
+
+    public void whenFinished() {
+        btnPause.setEnabled(false);
+        btnStop.setEnabled(false);
+        btnStart.setEnabled(true);
+    }
 
     public void changeValues() {
         if (EnergyCheckUtils.flag == true) {

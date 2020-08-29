@@ -15,35 +15,20 @@ import java.util.logging.Logger;
  *
  * @author root
  */
-public class tests {
+public class tests implements Runnable {
+    
 
-    public static void main(String[] args) {
-        FileWriter csvWriter = null;
+    @Override
+    public void run() {
+        System.out.println("empezo");
         try {
-            List<List<String>> rows = Arrays.asList(
-                    Arrays.asList("Jean", "author", "Java"),
-                    Arrays.asList("David", "editor", "Python"),
-                    Arrays.asList("Scott", "editor", "Node.js")
-            );  csvWriter = new FileWriter("/home/laboratorio/Desktop/new.csv");
-            csvWriter.append("Name");
-            csvWriter.append(",");
-            csvWriter.append("Role");
-            csvWriter.append(",");
-            csvWriter.append("Topic");
-            csvWriter.append("\n");
-            for (List<String> rowData : rows) {
-                csvWriter.append(String.join(",", rowData));
-                csvWriter.append("\n");
-            }   csvWriter.flush();
-            csvWriter.close();
-        } catch (IOException ex) {
+            Thread.sleep(5000);
+            System.out.println("termino");
+        } catch (InterruptedException ex) {
             Logger.getLogger(tests.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                csvWriter.close();
-            } catch (IOException ex) {
-                Logger.getLogger(tests.class.getName()).log(Level.SEVERE, null, ex);
-            }
         }
+        
     }
+
+    
 }

@@ -1,12 +1,10 @@
 
-import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 /*
@@ -77,17 +75,24 @@ public class testUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        Desktop desktop = java.awt.Desktop.getDesktop();
-        try {
-            URI openURL = new URI("http://127.0.0.1:5500/index.html");
-            desktop.browse(openURL);
-        } catch (URISyntaxException ex) {
-            Logger.getLogger(testUI.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(testUI.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        ExecutorService exec = Executors.newSingleThreadExecutor();
+        exec.submit(player);
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    
+    Runnable player = new Runnable() {
+        @Override
+        public void run() {
+            System.out.println("emepzo");
+            try {
+                Thread.sleep(5000);
+                System.out.println("acabo");
+            } catch (InterruptedException ex) {
+                Logger.getLogger(testUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    };
+    
     SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
         @Override
         protected Boolean doInBackground() throws Exception {
