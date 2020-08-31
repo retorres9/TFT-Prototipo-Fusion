@@ -30,7 +30,8 @@ public class InterfazFusion extends javax.swing.JFrame {
     ButtonGroup framework = new ButtonGroup();
     EnergyCheckUtils energy = new EnergyCheckUtils();
     public String path = "";
-
+    public String url = "";
+    
     public InterfazFusion() {
         initComponents();
         this.setLocationRelativeTo(null);

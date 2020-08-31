@@ -1,5 +1,9 @@
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -101,14 +105,34 @@ public class testUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        jButton2.setVisible(true);
+        File f = new File("/home/roberth/Desktop/template.html");
+        try {
+            String ENDL = System.getProperty("line.separator");
+
+            StringBuilder sb = new StringBuilder();
+
+            BufferedReader br = new BufferedReader(new FileReader(f));
+            String ln;
+            while ((ln = br.readLine()) != null) {
+                sb.append(ln
+                        .replace("$1", "http://localhost:5500/Libro1.json")
+                        .replace("$2", "http://localhost:5500/Libro2.json")
+                ).append(ENDL);
+            }
+            br.close();
+
+            BufferedWriter bw = new BufferedWriter(new FileWriter(f));
+            bw.write(sb.toString());
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    public void icono(){
+    public void icono() {
         ImageIcon loading = new ImageIcon("ajax-loader.gif");
     }
-    
-    
+
 //    Runnable player = new Runnable() {
 //        @Override
 //        public void run() {
@@ -121,7 +145,6 @@ public class testUI extends javax.swing.JFrame {
 //            }
 //        }
 //    };
-    
     SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
         @Override
         protected Boolean doInBackground() throws Exception {

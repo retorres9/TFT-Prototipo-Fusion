@@ -1,5 +1,6 @@
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -151,6 +152,8 @@ public class EnergyCheckUtils {
 //                System.out.println("@Power consumption of dram: @" + (after[0] - before[0]) / 10.0 + "@power consumption of cpu: @" + (after[1] - before[1]) / 10.0 + "@power consumption of package: @" + (after[2] - before[2]) / 10.0 + " @time: @" + time);
             }
             generaCSV(listad, date, path);
+            generaJSON(listad, date, path);
+
         }
         if (framework.equals("2")) {
             powerAPI(path);
@@ -236,6 +239,127 @@ public class EnergyCheckUtils {
         }
     }
 
+    public static void generaJSON(ArrayList<Datos> lista, Date date, String path) {
+        String appRealPID = "";
+        String[] name = path.split("/");
+        String name3 = name[4];
+        FileWriter csvWriter = null;
+        FileWriter csvWriter2 = null;
+
+        InterfazFusion interfaz = new InterfazFusion();
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH_mm_ss");
+        LocalDateTime now = LocalDateTime.now();
+        String fecha = dtf.format(now);
+        String ruta = "/home/roberth/Desktop/test/Resultados_" + name3 + "_" + fecha + ".json";
+        String ruta2 = "/home/roberth/Desktop/test/Resultados_" + name3 + "2_" + fecha + ".json";
+        double valueDRAM;
+        double valueCPU;
+        double valuePKG;
+        double auxDRAM = 0;
+        double auxCPU = 0;
+        double auxPKG = 0;
+        try {
+            Iterator itr = lista.iterator();
+            File f = new File(ruta);
+            File f2 = new File(ruta2);
+            int header = 1;
+            csvWriter = new FileWriter(f, true);
+            csvWriter2 = new FileWriter(f2, true);
+            if (header == 1) {
+                csvWriter.append("[");
+                csvWriter.append("\n");
+                csvWriter2.append("[");
+                csvWriter2.append("\n");
+                header++;
+            }
+
+            while (itr.hasNext()) {
+                Datos st = (Datos) itr.next();
+                valueDRAM = Double.parseDouble(st.data0);
+                auxDRAM = auxDRAM + valueDRAM;
+                valueCPU = Double.parseDouble(st.data1);
+                auxCPU = auxCPU + valueCPU;
+                valuePKG = Double.parseDouble(st.data2);
+                auxPKG = auxPKG + valuePKG;
+                csvWriter.append("[\"" + st.date + "\"");
+                csvWriter.append(",");
+                csvWriter2.append("[\"" + st.date + "\"");
+                csvWriter2.append(",");
+                csvWriter.append(st.data0);
+                csvWriter.append(",");
+                csvWriter2.append(String.valueOf(auxDRAM));
+                csvWriter2.append(",");
+                csvWriter.append(st.data1);
+                csvWriter.append(",");
+                csvWriter2.append(String.valueOf(auxCPU));
+                csvWriter2.append(",");
+                if (!itr.hasNext()) {
+                    csvWriter.append(st.data2 + "]");
+                    csvWriter2.append(String.valueOf(auxPKG)+"]");
+                }
+                if (itr.hasNext()) {
+                    csvWriter.append(st.data2 + "]");
+                    csvWriter2.append(String.valueOf(auxPKG)+"]");
+                    csvWriter.append(",");
+                    csvWriter2.append(",");
+                }
+
+                csvWriter.append("\n");
+                csvWriter2.append("\n");
+
+            }
+            ruta = "Resultados_" + name3 + "_" + fecha + ".json";
+            ruta2= "Resultados_" + name3 + "2_" + fecha + ".json";
+            csvWriter.append("]");
+            csvWriter2.append("]");
+            htmlGenerator(ruta, ruta2);
+        } catch (IOException ex) {
+            Logger.getLogger(EnergyCheckUtils.class
+                    .getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                csvWriter.close();
+                csvWriter2.close();
+                interfaz.txtStatus.setText("La medición ha empezado...\nObteniendo datos..."
+                        + "\nGenerando archivo Resultados_" + name3 + "_" + date + ".csv\n"
+                        + "Archivo Resultados_" + name3 + "_" + date + ".csv generado exitosamente!!!");
+                interfaz.btnLoading.setVisible(false);
+            } catch (IOException ex) {
+                Logger.getLogger(EnergyCheckUtils.class
+                        .getName()).log(Level.SEVERE, null, ex);
+
+            }
+        }
+    }
+
+    public static void htmlGenerator(String path, String path2) {
+        System.out.println(path + "00000000000000000000000");
+        System.out.println(path2 + "00000000000000000000000");
+        File f = new File("/home/roberth/Desktop/test/template2.html");
+        try {
+            String ENDL = System.getProperty("line.separator");
+
+            StringBuilder sb = new StringBuilder();
+
+            BufferedReader br = new BufferedReader(new FileReader(f));
+            String ln;
+            while ((ln = br.readLine()) != null) {
+                sb.append(ln
+                        .replace("$1", path)
+                        .replace("$2", path2)
+                ).append(ENDL);
+            }
+            br.close();
+
+            BufferedWriter bw = new BufferedWriter(new FileWriter("/home/roberth/Desktop/test/template.html"));
+            bw.write(sb.toString());
+            bw.close();
+            JOptionPane.showMessageDialog(null, "Terminó la ejecución del programa\ny se ha generado el archivo html para visualizar los datos");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void enableMSR() throws IOException {
         Process msr = Runtime.getRuntime().exec("modprobe msr"); //Habilita acceso a los MSR
     }
@@ -258,7 +382,7 @@ public class EnergyCheckUtils {
             @Override
             protected void done() {
                 flag = false;
-                JOptionPane.showMessageDialog(null, "Terminó la ejecución del programa");
+                
             }
         };
         worker.execute();
@@ -381,7 +505,7 @@ public class EnergyCheckUtils {
                 }
 
             }
-            
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
