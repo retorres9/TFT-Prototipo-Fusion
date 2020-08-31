@@ -1,10 +1,9 @@
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.ImageIcon;
 import javax.swing.SwingWorker;
 
 /*
@@ -23,6 +22,7 @@ public class testUI extends javax.swing.JFrame {
      */
     public testUI() {
         initComponents();
+        jButton2.setVisible(false);
     }
 
     /**
@@ -36,6 +36,8 @@ public class testUI extends javax.swing.JFrame {
 
         jButton1 = new javax.swing.JButton();
         txtPath = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -48,18 +50,36 @@ public class testUI extends javax.swing.JFrame {
 
         txtPath.setText("/home/roberth/Desktop/Hilo.jar");
 
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+
+        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ajax-loader.gif"))); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(189, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jButton1)
                 .addGap(117, 117, 117))
             .addGroup(layout.createSequentialGroup()
                 .addGap(147, 147, 147)
-                .addComponent(txtPath)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 49, Short.MAX_VALUE)
+                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtPath))
+                .addGap(76, 76, 76))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -68,30 +88,39 @@ public class testUI extends javax.swing.JFrame {
                 .addComponent(txtPath)
                 .addGap(65, 65, 65)
                 .addComponent(jButton1)
-                .addContainerGap(154, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(10, 10, 10)))
+                .addGap(32, 32, 32))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        ExecutorService exec = Executors.newSingleThreadExecutor();
-        exec.submit(player);
+        jButton2.setVisible(true);
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    public void icono(){
+        ImageIcon loading = new ImageIcon("ajax-loader.gif");
+    }
     
-    Runnable player = new Runnable() {
-        @Override
-        public void run() {
-            System.out.println("emepzo");
-            try {
-                Thread.sleep(5000);
-                System.out.println("acabo");
-            } catch (InterruptedException ex) {
-                Logger.getLogger(testUI.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    };
+    
+//    Runnable player = new Runnable() {
+//        @Override
+//        public void run() {
+//            System.out.println("emepzo");
+//            try {
+//                Thread.sleep(5000);
+//                System.out.println("acabo");
+//            } catch (InterruptedException ex) {
+//                Logger.getLogger(testUI.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        }
+//    };
     
     SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
         @Override
@@ -163,6 +192,8 @@ public class testUI extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel txtPath;
     // End of variables declaration//GEN-END:variables
 }

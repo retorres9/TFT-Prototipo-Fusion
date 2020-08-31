@@ -1,5 +1,4 @@
 
-import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -9,7 +8,7 @@ import java.util.logging.Logger;
 import javax.swing.ButtonGroup;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.SwingWorker;
+import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 /*
@@ -36,6 +35,7 @@ public class InterfazFusion extends javax.swing.JFrame {
         this.setTitle("Prototipo Fusion");
         btnPause.setEnabled(false);
         btnStop.setEnabled(false);
+        btnLoading.setVisible(false);
         seleccionFramework();
     }
 
@@ -67,6 +67,7 @@ public class InterfazFusion extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         txtStatus = new javax.swing.JTextArea();
         jButton2 = new javax.swing.JButton();
+        btnLoading = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -126,15 +127,21 @@ public class InterfazFusion extends javax.swing.JFrame {
                     .addComponent(rbtnPower)
                     .addComponent(rbtnJRAPL))
                 .addGap(36, 36, 36)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnStart, javax.swing.GroupLayout.DEFAULT_SIZE, 307, Short.MAX_VALUE)
-                    .addComponent(btnStop, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnPause, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(33, 33, 33))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(btnPause, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnStart, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE)
+                    .addComponent(btnStop, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(34, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(27, 27, 27)
+                .addComponent(rbtnJRAPL)
+                .addGap(18, 18, 18)
+                .addComponent(rbtnPower)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap(16, Short.MAX_VALUE)
                 .addComponent(btnStart)
                 .addGap(12, 12, 12)
@@ -142,16 +149,11 @@ public class InterfazFusion extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnStop)
                 .addContainerGap())
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(27, 27, 27)
-                .addComponent(rbtnJRAPL)
-                .addGap(18, 18, 18)
-                .addComponent(rbtnPower)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         txtStatus.setColumns(20);
         txtStatus.setRows(5);
+        txtStatus.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         jScrollPane1.setViewportView(txtStatus);
 
         jButton2.setText("Ver Resultados");
@@ -161,15 +163,13 @@ public class InterfazFusion extends javax.swing.JFrame {
             }
         });
 
+        btnLoading.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ajax-loader.gif"))); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jLabel1)
-                .addGap(207, 207, 207))
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -182,12 +182,20 @@ public class InterfazFusion extends javax.swing.JFrame {
                                 .addComponent(jButton1)
                                 .addGap(18, 18, 18)
                                 .addComponent(txtPath, javax.swing.GroupLayout.PREFERRED_SIZE, 285, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(25, 25, 25)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jButton2)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 304, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jButton2))
-                            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(49, Short.MAX_VALUE))
+                                .addComponent(btnLoading, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addContainerGap(32, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jLabel1)
+                .addGap(207, 207, 207))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -204,11 +212,13 @@ public class InterfazFusion extends javax.swing.JFrame {
                     .addComponent(txtPath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton2, javax.swing.GroupLayout.Alignment.TRAILING))
-                .addContainerGap(46, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnLoading, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(jButton2)
+                .addContainerGap(35, Short.MAX_VALUE))
         );
 
         pack();
@@ -234,19 +244,15 @@ public class InterfazFusion extends javax.swing.JFrame {
         if (paused == false) {
             if (fileTested.exists()) {
                 if (rbtnJRAPL.isSelected()) {
+                    btnLoading.setVisible(true);
+
                     exec.submit(worker);
                     txtStatus.setText("La medición ha empezado...\nObteniendo datos...");
                 }
                 if (rbtnPower.isSelected()) {
-                    try {
-                        energy.powerAPI(strFileTested);
-                    } catch (IOException ex) {
-                        Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                    btnLoading.setVisible(true);
+                    exec.submit(powerAPIWorker);
                 }
-//                EnergyCheckUtils.jrapl("/home/roberth/Downloads/Calculadora.jar");
             }
 
             if (!fileTested.exists()) {
@@ -267,16 +273,15 @@ public class InterfazFusion extends javax.swing.JFrame {
     }//GEN-LAST:event_btnPauseActionPerformed
 
     private void btnStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStopActionPerformed
-//        EnergyCheckUtils.flag = false;
-
         btnStart.setEnabled(true);
         btnPause.setEnabled(false);
         txtStatus.setText("La medición se ha detenido");
     }//GEN-LAST:event_btnStopActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        btnLoading.setVisible(false);
         try {
-            Process nav = Runtime.getRuntime().exec(" sh /home/roberth/nav.sh");
+            Process nav = Runtime.getRuntime().exec(" sh /home/roberth/browser.sh");
         } catch (IOException ex) {
             Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -287,6 +292,27 @@ public class InterfazFusion extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtPathActionPerformed
     boolean paused = false;
+
+    Runnable powerAPIWorker = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                energy.powerAPI(txtPath.getText());
+                load();
+            } catch (IOException ex) {
+                Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+    };
+    
+    public void load(){
+        System.out.println("yessssssssssss");
+        btnLoading.setVisible(false);
+    }
+
     Runnable worker = new Runnable() {
         @Override
         public void run() {
@@ -295,7 +321,6 @@ public class InterfazFusion extends javax.swing.JFrame {
                 File fileTested = new File(strFileTested);
                 whenStarted();
                 energy.framework(strFileTested);
-                System.out.println("here runn");
                 while (EnergyCheckUtils.lock == true) {
                     System.out.println("1");
                 }
@@ -322,6 +347,7 @@ public class InterfazFusion extends javax.swing.JFrame {
         btnPause.setEnabled(false);
         btnStop.setEnabled(false);
         btnStart.setEnabled(true);
+        btnLoading.setVisible(false);
     }
 
     public void changeValues() {
@@ -350,12 +376,13 @@ public class InterfazFusion extends javax.swing.JFrame {
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
         try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
+            UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
+//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+//                if ("Metal".equals(info.getName())) {
+//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+//                    break;
+//                }
+//            }
         } catch (ClassNotFoundException ex) {
             java.util.logging.Logger.getLogger(InterfazFusion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
@@ -376,6 +403,7 @@ public class InterfazFusion extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    public javax.swing.JButton btnLoading;
     private javax.swing.JButton btnPause;
     private javax.swing.JButton btnStart;
     private javax.swing.JButton btnStop;
@@ -389,6 +417,6 @@ public class InterfazFusion extends javax.swing.JFrame {
     private javax.swing.JRadioButton rbtnJRAPL;
     private javax.swing.JRadioButton rbtnPower;
     private javax.swing.JTextField txtPath;
-    private javax.swing.JTextArea txtStatus;
+    public javax.swing.JTextArea txtStatus;
     // End of variables declaration//GEN-END:variables
 }

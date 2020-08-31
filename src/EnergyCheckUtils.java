@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
@@ -17,7 +16,6 @@ import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -109,20 +107,16 @@ public class EnergyCheckUtils {
 
     }
 
-    public  void framework(String path) throws InterruptedException, IOException {
+    public void framework(String path) throws InterruptedException, IOException {
         ArrayList<Datos> listad = new ArrayList<>();
         Datos data1;
-//        String path = args[1];
-//        String framework = args[0];
         String framework = "1";
-        System.out.println("framework");
 
         if (framework.equals("1")) {
             Date date = new Date();
             date.getTime();
             int val1 = 1;
             String fe = "";
-            System.out.println("here");
             while (flag == true) {
                 double[] before = EnergyCheckUtils.getEnergyStats();
                 long pre = System.currentTimeMillis();
@@ -168,12 +162,15 @@ public class EnergyCheckUtils {
         String[] name = path.split("/");
         String name3 = name[4];
         FileWriter csvWriter = null;
+        InterfazFusion interfaz = new InterfazFusion();
         double valueDRAM;
         double valueCPU;
         double valuePKG;
         double auxDRAM = 0;
         double auxCPU = 0;
         double auxPKG = 0;
+        interfaz.txtStatus.setText("La medición ha empezado...\nObteniendo datos..."
+                + "\nGenerando archivo Resultados_" + name3 + "_" + date + ".csv");
         try {
             Iterator itr = lista.iterator();
             File f = new File("/home/roberth/Desktop/Datos/Resultados_" + name3 + "_" + date + ".csv");
@@ -227,7 +224,10 @@ public class EnergyCheckUtils {
         } finally {
             try {
                 csvWriter.close();
-
+                interfaz.txtStatus.setText("La medición ha empezado...\nObteniendo datos..."
+                        + "\nGenerando archivo Resultados_" + name3 + "_" + date + ".csv\n"
+                        + "Archivo Resultados_" + name3 + "_" + date + ".csv generado exitosamente!!!");
+                interfaz.btnLoading.setVisible(false);
             } catch (IOException ex) {
                 Logger.getLogger(EnergyCheckUtils.class
                         .getName()).log(Level.SEVERE, null, ex);
@@ -246,8 +246,6 @@ public class EnergyCheckUtils {
             @Override
             protected Boolean doInBackground() throws Exception {
                 int cont = 0;
-                System.out.println("start ecu");
-                System.out.println("cont 0");
                 enableMSR();
                 jrapl(path);
 
@@ -268,24 +266,21 @@ public class EnergyCheckUtils {
 
     public static void jrapl(String path) throws IOException, InterruptedException {
         String jraplOutput = "";
-        System.out.println(path);
         Process jrapl = Runtime.getRuntime().exec("sudo bash /home/roberth/java-bash.sh " + path);
         jrapl.waitFor();
         flag = false;
         lock = false;
     }
-    
+
     static boolean lockRun;
-    
+
     Runnable runna = new Runnable() {
         @Override
         public void run() {
             try {
                 lockRun = true;
-                System.out.println(pathApp+" here=======");
                 Process appTest = Runtime.getRuntime().exec("java -jar " + pathApp);
                 appTest.waitFor();
-                System.out.println("started");
                 lockRun = false;
             } catch (IOException ex) {
                 Logger.getLogger(EnergyCheckUtils.class.getName()).log(Level.SEVERE, null, ex);
@@ -294,31 +289,13 @@ public class EnergyCheckUtils {
             }
         }
     };
-    
-//    SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
-//        @Override
-//        protected Boolean doInBackground() throws Exception {
-//            lockRun = true;
-//            System.out.println(pathApp+" here=======");
-//            //                Process appTest = Runtime.getRuntime().exec("java -jar " + pathApp);
-//            System.out.println(pathApp);
-//            System.out.println("started");
-//            lock = false;
-//            return true;
-//        }
-//
-//        @Override
-//        protected void done() {
-//            System.out.println("finished");
-//            lockRun = false;
-//        }
-//
-//    };
-    
-    
-
 
     public void powerAPI(String path) throws IOException, InterruptedException {
+        String fecha;
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-mm-yyyy HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+
+        fecha = dtf.format(now);
         ExecutorService exec = Executors.newSingleThreadExecutor();
         exec.submit(runna);
         String appRealPID = "";
@@ -326,92 +303,63 @@ public class EnergyCheckUtils {
         String name3 = name[4];
         String[] part = name3.split("\\.");
         String app = part[0];
-//        worker.execute();
-        //        appTest.waitFor(2, TimeUnit.SECONDS);
         Process builder = Runtime.getRuntime().exec("sudo bash /home/roberth/getPID.sh " + name3);
         BufferedReader reader = new BufferedReader(new InputStreamReader(builder.getInputStream()));
-        Process getPID = Runtime.getRuntime().exec("/home/roberth/powerApiProccess.sh " + name3);
-
         String line = "";
         while ((line = reader.readLine()) != null) {
-            System.out.println(reader);
             String[] pid = line.split(" ");
-            System.out.println(pid[1]);
-            appRealPID = pid[1];
-            System.out.println(appRealPID + "real");
+            appRealPID = pid[0];
+            int pidInt = Integer.parseInt(appRealPID) + 1;
+            appRealPID = String.valueOf(pidInt);
             break;
         }
-        System.out.println(appRealPID);
-//        ProcessBuilder pb = new ProcessBuilder("sudo bash /home/roberth/powerAPI.sh " + appRealPID);
+
         Process runPowerAPI = Runtime.getRuntime().exec(
                 "bash /home/roberth/powerAPI.sh " + appRealPID
         );
-//        Process pro = pb.start();
-        while (lockRun == true) {
-            String a = "sdf";
-            System.out.println(a);
+
+        BufferedReader reader3 = new BufferedReader(new InputStreamReader(runPowerAPI.getInputStream()));
+        File f = new File("/home/roberth/Desktop/test/Data2.csv");
+        FileWriter csvWriter = null;
+        csvWriter = new FileWriter(f, false);
+        while (((line = reader3.readLine()) != null) && (lockRun == true)) {
+            csvWriter.append(line);
+            csvWriter.append("\n");
+            if (line.startsWith("Power")) {
+                break;
+            }
+
         }
-        System.out.println("arrived");
-        Process builder2 = Runtime.getRuntime().exec("sudo bash /home/roberth/getPID.sh powerAPI.sh");
+        csvWriter.close();
+        Process builder2 = Runtime.getRuntime().exec("sudo bash /home/roberth/getPID.sh power");
         reader = new BufferedReader(new InputStreamReader(builder2.getInputStream()));
-        String appRealPID2=null;
+        String appRealPID2 = null;
         String line2 = "";
         while ((line2 = reader.readLine()) != null) {
-            System.out.println(reader);
             String[] pid = line2.split(" ");
-            System.out.println(Arrays.toString(pid));
-            System.out.println(pid[1]);
-            appRealPID2 = pid[2];
-            System.out.println(appRealPID2+"000000000000000000000000");
-            break;
+            appRealPID2 = pid[1];
+            Process kill = Runtime.getRuntime().exec("sudo kill " + appRealPID2);
         }
-        Process kill = Runtime.getRuntime().exec("sudo kill "+appRealPID2);
-        Thread.sleep(5000);
-//        BufferedReader stdInput = new BufferedReader(new InputStreamReader(runPowerAPI.getInputStream()));
-//
-//        BufferedReader stdError = new BufferedReader(new InputStreamReader(runPowerAPI.getErrorStream()));
-//
-//// Read the output from the command
-//        System.out.println("Here is the standard output of the command:\n");
-//        String s = null;
-//        while ((s = stdInput.readLine()) != null) {
-//            System.out.println(s);
-//        }
 
-// Read any errors from the attempted command
-//        System.out.println("Here is the standard error of the command (if any):\n");
-//        while ((s = stdError.readLine()) != null) {
-//            System.out.println(s);
-//        }
-////        int val =   runPowerAPI.waitFor();
-//        System.out.println("here en " + name3);
-//        System.out.println("start");
-//        Thread.sleep(20000);
-        System.out.println(app);
-        clean(app);
-//        Process killer = Runtime.getRuntime().exec("sudo kill "+ appRealPID);
-//        killer.waitFor();
+        Thread.sleep(5000);
+        clean(app, fecha);
     }
 
-    public static void clean(String app) throws IOException {
-
-        String csvFile = "/home/roberth/Desktop/Data.csv";
+    public static void clean(String app, String fecha) throws IOException {
+        InterfazFusion inter = new InterfazFusion();
+        String csvFile = "/home/roberth/Desktop/test/Data2.csv";
         BufferedReader br = null;
         String line2 = "";
         String cvsSplitBy = ";";
         br = new BufferedReader(new FileReader(csvFile));
-        File f = new File("/home/roberth/Desktop/Datos/Resultados_" + app + ".csv");
+        File f = new File("/home/roberth/Desktop/Datos/Resultados_" + app + "_" + fecha + ".csv");
         FileWriter csvWriter = null;
-        csvWriter = new FileWriter(f, true);
+        csvWriter = new FileWriter(f, false);
 
         try {
 
             while ((line2 = br.readLine()) != null) {
-
-                System.out.println(line2);
-                // use comma as separator
                 String[] country = line2.split(cvsSplitBy);
-//                System.out.println("Country [code= " + country[1] + " , name=" + country[4] + "]");
                 String string = country[1];
                 String string2 = country[4];
                 if (string.length() > 0) {
@@ -425,20 +373,15 @@ public class EnergyCheckUtils {
                     String power = parts2[0];
                     String[] parts3 = power.split("=");
                     String jpower = parts3[1];
-//                    String power = parts[2];
-                    System.out.println(intTime + " " + jpower);
                     csvWriter.append(String.valueOf(intTime));
                     csvWriter.append(";");
                     csvWriter.append(String.valueOf(jpower));
                     csvWriter.append("\n");
 
                 }
-//                
-                // 034556F
 
             }
-
-            System.out.println("reached");
+            
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -448,6 +391,8 @@ public class EnergyCheckUtils {
                 try {
                     br.close();
                     csvWriter.close();
+                    inter.load();
+                    System.out.println("doneeeeeeeee");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
