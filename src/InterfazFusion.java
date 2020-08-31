@@ -1,6 +1,8 @@
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -245,9 +247,8 @@ public class InterfazFusion extends javax.swing.JFrame {
             if (fileTested.exists()) {
                 if (rbtnJRAPL.isSelected()) {
                     btnLoading.setVisible(true);
-
-                    exec.submit(worker);
                     txtStatus.setText("La medición ha empezado...\nObteniendo datos...");
+                    exec.submit(worker);
                 }
                 if (rbtnPower.isSelected()) {
                     btnLoading.setVisible(true);
@@ -279,10 +280,18 @@ public class InterfazFusion extends javax.swing.JFrame {
     }//GEN-LAST:event_btnStopActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        btnLoading.setVisible(false);
+//        btnLoading.setVisible(false);
         try {
-            Process nav = Runtime.getRuntime().exec(" sh /home/roberth/browser.sh");
+            Process nav = Runtime.getRuntime().exec("sh /home/roberth/browser.sh");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(nav.getInputStream()));
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+            nav.waitFor();
         } catch (IOException ex) {
+            Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
             Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
         }
 
@@ -307,9 +316,8 @@ public class InterfazFusion extends javax.swing.JFrame {
         }
 
     };
-    
-    public void load(){
-        System.out.println("yessssssssssss");
+
+    public void load() {
         btnLoading.setVisible(false);
     }
 

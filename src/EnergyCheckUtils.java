@@ -392,7 +392,6 @@ public class EnergyCheckUtils {
                     br.close();
                     csvWriter.close();
                     inter.load();
-                    System.out.println("doneeeeeeeee");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
