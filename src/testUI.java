@@ -1,14 +1,14 @@
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.ImageIcon;
-import javax.swing.SwingWorker;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -105,78 +105,118 @@ public class testUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        File f = new File("/home/roberth/Desktop/template.html");
-        try {
-            String ENDL = System.getProperty("line.separator");
-
-            StringBuilder sb = new StringBuilder();
-
-            BufferedReader br = new BufferedReader(new FileReader(f));
-            String ln;
-            while ((ln = br.readLine()) != null) {
-                sb.append(ln
-                        .replace("$1", "http://localhost:5500/Libro1.json")
-                        .replace("$2", "http://localhost:5500/Libro2.json")
-                ).append(ENDL);
+        ArrayList<Data> lista = new ArrayList<>();
+        Random ran = new Random();
+        Data data;
+        String fe = "";
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
+        LocalDateTime now = LocalDateTime.now();
+        for (int i = 0; i < 10; i++) {
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(testUI.class.getName()).log(Level.SEVERE, null, ex);
             }
-            br.close();
+            for (int j = 0; j < 10; j++) {
 
-            BufferedWriter bw = new BufferedWriter(new FileWriter(f));
-            bw.write(sb.toString());
-            bw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+                fe = dtf.format(now);
+                data = new Data("\"" + fe + "\"", ran.nextInt(100));
+                lista.add(data);
+            }
+            generaCSV(lista);
+            lista.clear();
         }
+
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    public void icono() {
-        ImageIcon loading = new ImageIcon("ajax-loader.gif");
-    }
-
-//    Runnable player = new Runnable() {
-//        @Override
-//        public void run() {
-//            System.out.println("emepzo");
-//            try {
-//                Thread.sleep(5000);
-//                System.out.println("acabo");
-//            } catch (InterruptedException ex) {
-//                Logger.getLogger(testUI.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//        }
-//    };
-    SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
-        @Override
-        protected Boolean doInBackground() throws Exception {
-            try {
-                String strFileTested = txtPath.getText();
-                File fileTested = new File(strFileTested);
-                if (fileTested.exists()) {
-//                    txtStatus.setCaretColor(Color.GREEN);
-//                    txtStatus.setText("La medición ha empezado...");
-                    EnergyCheckUtils.jrapl("/home/roberth/Downloads/Calculadora.jar");
-                }
-                if (!fileTested.exists()) {
-//                    JOptionPane.showMessageDialog(this, "La ruta especificada del archivo de prueba no es válido", "Aviso!", JOptionPane.ERROR_MESSAGE);
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
+    public static void generaCSV(ArrayList<Data> lista) {
+        String appRealPID = "";
+        FileWriter csvWriter = null;
+        InterfazFusion interfaz = new InterfazFusion();
+        double valueDRAM;
+        double valueCPU;
+        double valuePKG;
+        double auxDRAM = 0;
+        double auxCPU = 0;
+        double auxPKG = 0;
+        interfaz.txtStatus.setText("La medición ha empezado...\nObteniendo datos..."
+                + "\nGenerando archivo Resultados_.csv");
+        try {
+            Iterator itr = lista.iterator();
+            File f = new File("/home/roberth/Desktop/test/Resultados_.json");
+            csvWriter = new FileWriter(f, false);
+            int header = 1;
+            if (header == 1) {
+                csvWriter.append("[");
+                csvWriter.append("\n");
+                header++;
             }
-//                finally {
-//                    if (br != null) {
-//                        try {
-//                            br.close();
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                }
-            return true;
-        }
 
-    };
+            while (itr.hasNext()) {
+                Data next = (Data) itr.next();
+                if (!itr.hasNext()) {
+                    csvWriter.append("[" + next.data0 + "," + next.data1 + "]");
+                }
+                if (itr.hasNext()) {
+                    csvWriter.append("[" + next.data0 + "," + next.data1 + "]");
+                    csvWriter.append(",");
+                }
+
+                csvWriter.append("\n");
+            }
+
+            csvWriter.append("]");
+//            csvWriter.append(",");
+//            csvWriter.append("Value");
+//                csvWriter.append(";");
+//                csvWriter.append("Energy Package (J)");
+//                csvWriter.append(";");
+//                csvWriter.append("Hora");
+//                csvWriter.append(";");
+//                csvWriter.append("Increase Energy DRAM (J)");
+//                csvWriter.append(";");
+//                csvWriter.append("Increase Energy CPU (J)");
+//                csvWriter.append(";");
+//                csvWriter.append("Increase Energy Package (J)");
+//            csvWriter.append("\n");
+
+//            while (itr.hasNext()) {
+//                Integer get = lista.get(i);
+//                
+////                valueDRAM = Double.parseDouble(st.data0);
+////                auxDRAM = auxDRAM + valueDRAM;
+////                valueCPU = Double.parseDouble(st.data1);
+////                auxCPU = auxCPU + valueCPU;
+////                valuePKG = Double.parseDouble(st.data2);
+////                auxPKG = auxPKG + valuePKG;
+//                csvWriter.append(lista.get(i));
+////                csvWriter.append(",");
+////                csvWriter.append(st.data1);
+////                csvWriter.append(";");
+////                csvWriter.append(st.data2);
+//                csvWriter.append(";");
+//                csvWriter.append(st.date);
+//                csvWriter.append(";");
+//                csvWriter.append(String.valueOf(auxDRAM));
+//                csvWriter.append(";");
+//                csvWriter.append(String.valueOf(auxCPU));
+//                csvWriter.append(";");
+//                csvWriter.append(String.valueOf(auxPKG));
+//            }
+        } catch (IOException ex) {
+            Logger.getLogger(EnergyCheckUtils.class
+                    .getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                csvWriter.close();
+//                interfaz.btnLoading.setVisible(false);
+            } catch (IOException ex) {
+                Logger.getLogger(EnergyCheckUtils.class
+                        .getName()).log(Level.SEVERE, null, ex);
+
+            }
+        }
+    }
 
     /**
      * @param args the command line arguments
@@ -219,4 +259,15 @@ public class testUI extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel txtPath;
     // End of variables declaration//GEN-END:variables
+}
+
+class Data {
+
+    public String data0;
+    public int data1;
+
+    Data(String data0, int data1) {
+        this.data0 = data0;
+        this.data1 = data1;
+    }
 }

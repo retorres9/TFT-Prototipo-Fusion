@@ -31,7 +31,7 @@ public class InterfazFusion extends javax.swing.JFrame {
     EnergyCheckUtils energy = new EnergyCheckUtils();
     public String path = "";
     public String url = "";
-    
+
     public InterfazFusion() {
         initComponents();
         this.setLocationRelativeTo(null);
@@ -69,7 +69,7 @@ public class InterfazFusion extends javax.swing.JFrame {
         btnPause = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         txtStatus = new javax.swing.JTextArea();
-        jButton2 = new javax.swing.JButton();
+        btnResults = new javax.swing.JButton();
         btnLoading = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -159,10 +159,10 @@ public class InterfazFusion extends javax.swing.JFrame {
         txtStatus.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         jScrollPane1.setViewportView(txtStatus);
 
-        jButton2.setText("Ver Resultados");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        btnResults.setText("Ver Resultados");
+        btnResults.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                btnResultsActionPerformed(evt);
             }
         });
 
@@ -178,22 +178,23 @@ public class InterfazFusion extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jLabel2))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(24, 24, 24)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jButton1)
-                                .addGap(18, 18, 18)
-                                .addComponent(txtPath, javax.swing.GroupLayout.PREFERRED_SIZE, 285, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(25, 25, 25)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton2)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 304, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(btnLoading, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(layout.createSequentialGroup()
+                            .addGap(25, 25, 25)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(btnResults)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(jScrollPane1)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(btnLoading, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGroup(layout.createSequentialGroup()
+                            .addGap(24, 24, 24)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(jButton1)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(txtPath, javax.swing.GroupLayout.PREFERRED_SIZE, 285, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addContainerGap(32, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
@@ -220,7 +221,7 @@ public class InterfazFusion extends javax.swing.JFrame {
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnLoading, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(jButton2)
+                .addComponent(btnResults)
                 .addContainerGap(35, Short.MAX_VALUE))
         );
 
@@ -280,7 +281,7 @@ public class InterfazFusion extends javax.swing.JFrame {
         txtStatus.setText("La medición se ha detenido");
     }//GEN-LAST:event_btnStopActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void btnResultsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResultsActionPerformed
 //        btnLoading.setVisible(false);
         try {
             Process nav = Runtime.getRuntime().exec("sh /home/roberth/browser.sh");
@@ -296,7 +297,7 @@ public class InterfazFusion extends javax.swing.JFrame {
             Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_btnResultsActionPerformed
 
     private void txtPathActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPathActionPerformed
         // TODO add your handling code here:
@@ -318,8 +319,15 @@ public class InterfazFusion extends javax.swing.JFrame {
 
     };
 
+    public static void data() {
+        txtStatus.setText("La medición ha empezado...\nObteniendo datos..."
+                + "\nHa finalizado el monitoreo de la aplicación...\nGenerando archivos...\n");
+
+    }
+
     public void load() {
         btnLoading.setVisible(false);
+        btnResults.setVisible(true);
     }
 
     Runnable worker = new Runnable() {
@@ -414,10 +422,10 @@ public class InterfazFusion extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public javax.swing.JButton btnLoading;
     private javax.swing.JButton btnPause;
+    public javax.swing.JButton btnResults;
     private javax.swing.JButton btnStart;
     private javax.swing.JButton btnStop;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
@@ -426,6 +434,6 @@ public class InterfazFusion extends javax.swing.JFrame {
     private javax.swing.JRadioButton rbtnJRAPL;
     private javax.swing.JRadioButton rbtnPower;
     private javax.swing.JTextField txtPath;
-    public javax.swing.JTextArea txtStatus;
+    public static javax.swing.JTextArea txtStatus;
     // End of variables declaration//GEN-END:variables
 }
