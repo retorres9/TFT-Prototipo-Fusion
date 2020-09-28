@@ -149,21 +149,21 @@ public class EnergyCheckUtils {
                 );
 
                 listad.add(data1);
-                if (valAux == 1) {
-                    generaCSV(listad, date, path, 1);
-                }
-                System.out.println(valAux);
-                valAux++;
-                if (valAux == 4) {
-                    valAux = 1;
-                }
+//                if (valAux == 1) {
+//                    generaCSV(listad, date, path);
+//                }
+//                System.out.println(valAux);
+//                valAux++;
+//                if (valAux == 4) {
+//                    valAux = 1;
+//                }
 
             }
             for (int i = 0; i < socketNum; i++) {
 //                System.out.println("@Power consumption of dram: @" + (after[0] - before[0]) / 10.0 + "@power consumption of cpu: @" + (after[1] - before[1]) / 10.0 + "@power consumption of package: @" + (after[2] - before[2]) / 10.0 + " @time: @" + time);
             }
             InterfazFusion.data();
-//            generaCSV(listad, date, path);
+            generaCSV(listad, date, path);
 //            generaJSON(listad, date, path);
 
         }
@@ -172,7 +172,8 @@ public class EnergyCheckUtils {
         }
     }
 
-    public static void generaCSV(ArrayList<Datos> lista, Date date, String path, int header) {
+    public static void generaCSV(ArrayList<Datos> lista, Date date, String path) {
+        int header = 1;
         String appRealPID = "";
         String[] name = path.split("/");
         String name3 = name[4];
@@ -188,48 +189,48 @@ public class EnergyCheckUtils {
                 + "\nGenerando archivo Resultados_" + name3 + "_" + date + ".csv");
         try {
             Iterator itr = lista.iterator();
-            File f = new File("/home/roberth/Desktop/test/Resultados_.csv");
+            File f = new File("/home/roberth/Desktop/test/Resultados_" + name3 + ".csv");
             header = 1;
             csvWriter = new FileWriter(f);
             if (header == 1) {
                 csvWriter.append("Energy DRAM (J)");
-                csvWriter.append(",");
+                csvWriter.append(";");
                 csvWriter.append("Value");
-//                csvWriter.append(";");
-//                csvWriter.append("Energy Package (J)");
-//                csvWriter.append(";");
-//                csvWriter.append("Hora");
-//                csvWriter.append(";");
-//                csvWriter.append("Increase Energy DRAM (J)");
-//                csvWriter.append(";");
-//                csvWriter.append("Increase Energy CPU (J)");
-//                csvWriter.append(";");
-//                csvWriter.append("Increase Energy Package (J)");
+                csvWriter.append(";");
+                csvWriter.append("Energy Package (J)");
+                csvWriter.append(";");
+                csvWriter.append("Hora");
+                csvWriter.append(";");
+                csvWriter.append("Increase Energy DRAM (J)");
+                csvWriter.append(";");
+                csvWriter.append("Increase Energy CPU (J)");
+                csvWriter.append(";");
+                csvWriter.append("Increase Energy Package (J)");
                 csvWriter.append("\n");
                 header++;
             }
 
             while (itr.hasNext()) {
                 Datos st = (Datos) itr.next();
-//                valueDRAM = Double.parseDouble(st.data0);
-//                auxDRAM = auxDRAM + valueDRAM;
-//                valueCPU = Double.parseDouble(st.data1);
-//                auxCPU = auxCPU + valueCPU;
-//                valuePKG = Double.parseDouble(st.data2);
-//                auxPKG = auxPKG + valuePKG;
-                csvWriter.append(st.date);
-                csvWriter.append(",");
+                valueDRAM = Double.parseDouble(st.data0);
+                auxDRAM = auxDRAM + valueDRAM;
+                valueCPU = Double.parseDouble(st.data1);
+                auxCPU = auxCPU + valueCPU;
+                valuePKG = Double.parseDouble(st.data2);
+                auxPKG = auxPKG + valuePKG;
+                csvWriter.append(st.data0);
+                csvWriter.append(";");
                 csvWriter.append(st.data1);
-//                csvWriter.append(";");
-//                csvWriter.append(st.data2);
-//                csvWriter.append(";");
-//                csvWriter.append(st.date);
-//                csvWriter.append(";");
-//                csvWriter.append(String.valueOf(auxDRAM));
-//                csvWriter.append(";");
-//                csvWriter.append(String.valueOf(auxCPU));
-//                csvWriter.append(";");
-//                csvWriter.append(String.valueOf(auxPKG));
+                csvWriter.append(";");
+                csvWriter.append(st.data2);
+                csvWriter.append(";");
+                csvWriter.append(st.date);
+                csvWriter.append(";");
+                csvWriter.append(String.valueOf(auxDRAM));
+                csvWriter.append(";");
+                csvWriter.append(String.valueOf(auxCPU));
+                csvWriter.append(";");
+                csvWriter.append(String.valueOf(auxPKG));
                 csvWriter.append("\n");
 
             }
@@ -251,7 +252,8 @@ public class EnergyCheckUtils {
     public static void generaJSON(ArrayList<Datos> lista, Date date, String path) {
         String appRealPID = "";
         String[] name = path.split("/");
-        String name3 = name[4];
+        int position = name.length - 1;
+        String name3 = name[position];
         FileWriter csvWriter = null;
         FileWriter csvWriter2 = null;
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH_mm_ss");
@@ -357,7 +359,7 @@ public class EnergyCheckUtils {
             bw.close();
             JOptionPane.showMessageDialog(null, "Terminó la ejecución del programa\ny se ha generado el archivo html para visualizar los datos");
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.getLogger(EnergyCheckUtils.class.getName()).log(Level.SEVERE, null, e);
         }
     }
 
@@ -424,36 +426,42 @@ public class EnergyCheckUtils {
         exec.submit(runna);
         String appRealPID = "";
         String[] name = path.split("/");
-        String name3 = name[4];
+        System.out.println(name.length);
+        System.out.println(Arrays.toString(name));
+        String name3 = name[name.length - 1];
         String[] part = name3.split("\\.");
         String app = part[0];
-        System.out.println(app);
         InterfazFusion.txtStatus.setText("Ha comenzado la medición de la aplicación " + name3);
-        Process builder = Runtime.getRuntime().exec("sudo bash /home/roberth/getPID.sh " + name3);
+        Process builder = Runtime.getRuntime().exec("bash /home/roberth/getPID.sh " + name3);
         BufferedReader reader = new BufferedReader(new InputStreamReader(builder.getInputStream()));
         String line = "";
         while ((line = reader.readLine()) != null) {
             String[] pid = line.split(" ");
             System.out.println(Arrays.toString(pid));
             appRealPID = pid[1];
-            if(appRealPID.startsWith("p")){
-                appRealPID = pid[0];
+            String getJavaProccess = pid[9];
+            if (getJavaProccess.startsWith("java")) {
+                System.out.println("SI ENTRA");
+                if (appRealPID.startsWith("p")) {
+                    appRealPID = pid[0];
+                }
+                System.out.println(appRealPID);
+                int pidInt = Integer.parseInt(appRealPID);
+                appRealPID = String.valueOf(pidInt);
+
+                break;
             }
-            System.out.println(appRealPID);
-            int pidInt = Integer.parseInt(appRealPID) + 1;
-            appRealPID = String.valueOf(pidInt);
-            
-            break;
+
         }
         System.out.println("here");
 
         Process runPowerAPI = Runtime.getRuntime().exec(
                 "bash /home/roberth/powerAPI.sh " + appRealPID
         );
-        
+
         BufferedReader reader3 = new BufferedReader(new InputStreamReader(runPowerAPI.getInputStream()));
         File f = new File("/home/roberth/Desktop/test/Data2.csv");
-        FileWriter csvWriter = null;
+        FileWriter csvWriter;
         csvWriter = new FileWriter(f, false);
         while (((line = reader3.readLine()) != null) && (lockRun == true)) {
             System.out.println(line);
@@ -464,35 +472,38 @@ public class EnergyCheckUtils {
             }
 
         }
-        InterfazFusion.txtStatus.setText("Ha comenzado la medición de la aplicación " + name3 +"\n"
-        + "Se ha generado el archivo csv");
+        InterfazFusion.txtStatus.setText("Ha comenzado la medición de la aplicación " + name3 + "\n"
+                + "Se ha generado el archivo csv");
         csvWriter.close();
         Process builder2 = Runtime.getRuntime().exec("sudo bash /home/roberth/getPID.sh power");
         reader = new BufferedReader(new InputStreamReader(builder2.getInputStream()));
         String appRealPID2 = null;
         String line2 = "";
         while ((line2 = reader.readLine()) != null) {
+            System.out.println(line2);
             String[] pid = line2.split(" ");
             appRealPID2 = pid[1];
+            appRealPID = pid[0];
             Process kill = Runtime.getRuntime().exec("sudo kill " + appRealPID2);
+            Process kill2 = Runtime.getRuntime().exec("sudo kill " + appRealPID);
         }
 
         Thread.sleep(5000);
-        InterfazFusion.txtStatus.setText("Ha comenzado la medición de la aplicación " + name3 +"\n"
-        + "Se ha generado el archivo csv"+ "\nHa comenzado la limpieza de datos");
+        InterfazFusion.txtStatus.setText("Ha comenzado la medición de la aplicación " + name3 + "\n"
+                + "Se ha generado el archivo csv" + "\nHa comenzado la limpieza de datos");
         clean(app, fecha);
-        
+
     }
 
     public static void clean(String app, String fecha) throws IOException {
         InterfazFusion inter = new InterfazFusion();
         String csvFile = "/home/roberth/Desktop/test/Data2.csv";
-        BufferedReader br = null;
-        String line2 = "";
+        BufferedReader br;
+        String line2;
         String cvsSplitBy = ";";
         br = new BufferedReader(new FileReader(csvFile));
         File f = new File("/home/roberth/Desktop/Datos/Resultados_" + app + "_" + fecha + ".csv");
-        FileWriter csvWriter = null;
+        FileWriter csvWriter;
         csvWriter = new FileWriter(f, false);
 
         try {
@@ -518,14 +529,14 @@ public class EnergyCheckUtils {
                 }
 
             }
-            InterfazFusion.txtStatus.setText("Ha comenzado la medición de la aplicación " + app +"\n"
-        + "Se ha generado el archivo csv"+ "\nHa comenzado la limpieza de datos"+
-                "\nHa finalizado la limpieza de datos");
+            InterfazFusion.txtStatus.setText("Ha comenzado la medición de la aplicación " + app + "\n"
+                    + "Se ha generado el archivo csv" + "\nHa comenzado la limpieza de datos"
+                    + "\nHa finalizado la limpieza de datos");
             JOptionPane.showMessageDialog(null, "Terminó la ejecución del programa\ny se ha generado el archivo html para visualizar los datos");
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "No se ha encontrado el archivo para realizar la limpieza de datos", "Error", JOptionPane.ERROR_MESSAGE);
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.getLogger(EnergyCheckUtils.class.getName()).log(Level.SEVERE, null, e);
         } finally {
             if (br != null) {
                 try {
@@ -533,7 +544,7 @@ public class EnergyCheckUtils {
                     csvWriter.close();
                     inter.load();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Logger.getLogger(EnergyCheckUtils.class.getName()).log(Level.SEVERE, null, e);
                 }
             }
         }
