@@ -2,6 +2,7 @@
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -9,6 +10,13 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.DateAxis;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.time.DynamicTimeSeriesCollection;
+import org.jfree.data.time.Second;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -24,11 +32,29 @@ public class testUI extends javax.swing.JFrame {
     /**
      * Creates new form testUI
      */
+    
+    private DynamicTimeSeriesCollection dataset;
+    private JFreeChart chart;
+    
     public testUI() {
         initComponents();
-        jButton2.setVisible(false);
+        jButton2.setVisible(false);   
     }
 
+    public void DynamicTimeSeriesChart(final String title) {
+        dataset = new DynamicTimeSeriesCollection(1, 1000, new Second());
+        dataset.setTimeBase(new Second(0, 0, 0, 23, 1, 2014));
+        dataset.addSeries(new float[1], 0, title);
+        chart = ChartFactory.createTimeSeriesChart(
+            title, "Time", title, dataset, true, true, false);
+        final XYPlot plot = chart.getXYPlot();
+        DateAxis axis = (DateAxis) plot.getDomainAxis();
+        axis.setFixedAutoRange(10000);
+        axis.setDateFormatOverride(new SimpleDateFormat("ss.SS"));
+        final ChartPanel chartPanel = new ChartPanel(chart);
+        add(chartPanel);
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

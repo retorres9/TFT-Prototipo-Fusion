@@ -42,7 +42,7 @@ public class InterfazFusion extends javax.swing.JFrame {
         seleccionFramework();
     }
 
-    public void seleccionFramework() {
+    public final void seleccionFramework() {
         framework.add(rbtnJRAPL);
         framework.add(rbtnPower);
     }
@@ -232,8 +232,8 @@ public class InterfazFusion extends javax.swing.JFrame {
         JFileChooser fileChoser = new JFileChooser();
         fileChoser.setCurrentDirectory(new File("/home/roberth/Desktop"));
         fileChoser.setFileFilter(new FileNameExtensionFilter("Jar FIles", "jar"));
-        int path = fileChoser.showDialog(null, "Select file");
-        if (path != 1) {
+        int pathChoosed = fileChoser.showDialog(null, "Select file");
+        if (pathChoosed != 1) {
             txtPath.setText(fileChoser.getSelectedFile().getAbsolutePath());
         }
     }//GEN-LAST:event_jButton1ActionPerformed
@@ -282,14 +282,8 @@ public class InterfazFusion extends javax.swing.JFrame {
     }//GEN-LAST:event_btnStopActionPerformed
 
     private void btnResultsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResultsActionPerformed
-//        btnLoading.setVisible(false);
         try {
             Process nav = Runtime.getRuntime().exec("sh /home/roberth/browser.sh");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(nav.getInputStream()));
-            String line = "";
-            while ((line = reader.readLine()) != null) {
-                System.out.println(line);
-            }
             nav.waitFor();
         } catch (IOException ex) {
             Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
@@ -307,14 +301,8 @@ public class InterfazFusion extends javax.swing.JFrame {
     Runnable powerAPIWorker = new Runnable() {
         @Override
         public void run() {
-            try {
-                energy.powerAPI(txtPath.getText());
-                load();
-            } catch (IOException ex) {
-                Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            energy.powerAPI(txtPath.getText());
+            load();
         }
 
     };
