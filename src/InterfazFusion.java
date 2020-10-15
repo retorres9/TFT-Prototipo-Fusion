@@ -1,8 +1,6 @@
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -31,6 +29,7 @@ public class InterfazFusion extends javax.swing.JFrame {
     EnergyCheckUtils energy = new EnergyCheckUtils();
     public String path = "";
     public String url = "";
+    public String shPath = "";
 
     public InterfazFusion() {
         initComponents();
@@ -283,7 +282,13 @@ public class InterfazFusion extends javax.swing.JFrame {
 
     private void btnResultsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResultsActionPerformed
         try {
-            Process nav = Runtime.getRuntime().exec("sh /home/roberth/browser.sh");
+            Process nav = null;
+            if (rbtnJRAPL.isSelected()) {
+                nav = Runtime.getRuntime().exec("sh /home/roberth/browser.sh");
+            } if (rbtnPower.isSelected()) {
+                nav = Runtime.getRuntime().exec("sh /home/roberth/browser2.sh");
+            }
+            
             nav.waitFor();
         } catch (IOException ex) {
             Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
@@ -332,7 +337,7 @@ public class InterfazFusion extends javax.swing.JFrame {
                 EnergyCheckUtils.flag = true;
                 whenFinished();
                 if (!fileTested.exists()) {
-//                    JOptionPane.showMessageDialog(this, "La ruta especificada del archivo de prueba no es válido", "Aviso!", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "La ruta especificada del archivo de prueba no es válido", "Aviso!", JOptionPane.ERROR_MESSAGE);
                 }
             } catch (InterruptedException ex) {
                 Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
