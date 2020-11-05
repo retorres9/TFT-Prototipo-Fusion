@@ -1,6 +1,12 @@
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.io.File;
 import java.io.IOException;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -25,11 +31,15 @@ public class InterfazFusion extends javax.swing.JFrame {
     /**
      * Creates new form InterfazFusion
      */
+    Connection connection = null;
+    PreparedStatement ps = null;
     ButtonGroup framework = new ButtonGroup();
     EnergyCheckUtils energy = new EnergyCheckUtils();
     public String path = "";
     public String url = "";
     public String shPath = "";
+    public String srcPower = null;
+    public String srcJrapl = null;
 
     public InterfazFusion() {
         initComponents();
@@ -38,12 +48,44 @@ public class InterfazFusion extends javax.swing.JFrame {
         btnPause.setEnabled(false);
         btnStop.setEnabled(false);
         btnLoading.setVisible(false);
-        seleccionFramework();
+//        seleccionFramework();
     }
 
     public final void seleccionFramework() {
         framework.add(rbtnJRAPL);
         framework.add(rbtnPower);
+    }
+
+    public boolean nuevoRegistro(String app, String date, String rutaPower, String rutaJRAPL) throws SQLException {
+        try {
+            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/dbRegistro", "root", "12345");
+            String sentencia = "INSERT INTO history (NombreApp, Fecha, RutaPowerAPI, RutaJrapl) "
+                    + "VALUES (?,?,?,?)";
+            ps = connection.prepareStatement(sentencia);
+            ps.setString(1, app);
+            ps.setString(2, date);
+            if (rutaPower == null) {
+                ps.setString(3, null);
+            }
+            ps.setString(3, rutaPower);
+            if (rutaJRAPL == null) {
+                ps.setString(4, null);
+            }
+            ps.setString(4, rutaJRAPL);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Ha existido un error al guardar el registro de la ejecución");
+            return false;
+        } finally {
+            try {
+                ps.close();
+                connection.close();
+            } catch (SQLException ex) {
+                Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return true;
     }
 
     /**
@@ -74,11 +116,6 @@ public class InterfazFusion extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         txtPath.setText("/home/roberth/Desktop/Hilo.jar");
-        txtPath.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtPathActionPerformed(evt);
-            }
-        });
 
         jButton1.setText("Buscar");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -239,21 +276,31 @@ public class InterfazFusion extends javax.swing.JFrame {
 
     private void btnStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStartActionPerformed
         String strFileTested = txtPath.getText();
-        path = strFileTested;
+        path = strFileTested.trim();
+
+        String[] appArr = path.split("/");
+        System.out.println(Arrays.toString(appArr));
+        int sizePath = appArr.length - 1;
+        String appName = appArr[sizePath];
         EnergyCheckUtils.pathApp = strFileTested;
         EnergyCheckUtils.flag = true;
         File fileTested = new File(strFileTested);
         ExecutorService exec = Executors.newSingleThreadExecutor();
         if (paused == false) {
             if (fileTested.exists()) {
-                if (rbtnJRAPL.isSelected()) {
-                    btnLoading.setVisible(true);
-                    txtStatus.setText("La medición ha empezado...\nObteniendo datos...");
-                    exec.submit(worker);
+                if (rbtnJRAPL.isSelected() && rbtnPower.isSelected()) {
+                    JOptionPane.showMessageDialog(null, "Ambos");
                 }
-                if (rbtnPower.isSelected()) {
-                    btnLoading.setVisible(true);
-                    exec.submit(powerAPIWorker);
+                if (rbtnJRAPL.isSelected() && !rbtnPower.isSelected()) {
+                    JOptionPane.showMessageDialog(null, "Solo JRAPL");
+//                    btnLoading.setVisible(true);
+//                    txtStatus.setText("La medición ha empezado...\nObteniendo datos...");
+//                    exec.submit(worker);
+                }
+                if (rbtnPower.isSelected() && !rbtnJRAPL.isSelected()) {
+                    JOptionPane.showMessageDialog(null, "Solo Power");
+//                    btnLoading.setVisible(true);
+//                    exec.submit(powerAPIWorker);
                 }
             }
 
@@ -265,7 +312,6 @@ public class InterfazFusion extends javax.swing.JFrame {
         if (paused == true) {
             EnergyCheckUtils.flag = true;
         }
-
     }//GEN-LAST:event_btnStartActionPerformed
 
     private void btnPauseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPauseActionPerformed
@@ -285,10 +331,11 @@ public class InterfazFusion extends javax.swing.JFrame {
             Process nav = null;
             if (rbtnJRAPL.isSelected()) {
                 nav = Runtime.getRuntime().exec("sh /home/roberth/browser.sh");
-            } if (rbtnPower.isSelected()) {
+            }
+            if (rbtnPower.isSelected()) {
                 nav = Runtime.getRuntime().exec("sh /home/roberth/browser2.sh");
             }
-            
+
             nav.waitFor();
         } catch (IOException ex) {
             Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
@@ -297,10 +344,6 @@ public class InterfazFusion extends javax.swing.JFrame {
         }
 
     }//GEN-LAST:event_btnResultsActionPerformed
-
-    private void txtPathActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPathActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtPathActionPerformed
     boolean paused = false;
 
     Runnable powerAPIWorker = new Runnable() {
@@ -319,6 +362,7 @@ public class InterfazFusion extends javax.swing.JFrame {
     }
 
     public void load() {
+        System.out.println("Ocultando gif");
         btnLoading.setVisible(false);
         btnResults.setVisible(true);
     }
