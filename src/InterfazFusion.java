@@ -34,7 +34,8 @@ public class InterfazFusion extends javax.swing.JFrame {
     Connection connection = null;
     PreparedStatement ps = null;
     ButtonGroup framework = new ButtonGroup();
-    EnergyCheckUtils energy = new EnergyCheckUtils();
+    
+    public static String twiceFrameworks = "false";
     public String path = "";
     public String url = "";
     public String shPath = "";
@@ -48,12 +49,6 @@ public class InterfazFusion extends javax.swing.JFrame {
         btnPause.setEnabled(false);
         btnStop.setEnabled(false);
         btnLoading.setVisible(false);
-//        seleccionFramework();
-    }
-
-    public final void seleccionFramework() {
-        framework.add(rbtnJRAPL);
-        framework.add(rbtnPower);
     }
 
     public boolean nuevoRegistro(String app, String date, String rutaPower, String rutaJRAPL) throws SQLException {
@@ -267,7 +262,7 @@ public class InterfazFusion extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         JFileChooser fileChoser = new JFileChooser();
         fileChoser.setCurrentDirectory(new File("/home/roberth/Desktop"));
-        fileChoser.setFileFilter(new FileNameExtensionFilter("Jar FIles", "jar"));
+        fileChoser.setFileFilter(new FileNameExtensionFilter("Jar Files", "jar"));
         int pathChoosed = fileChoser.showDialog(null, "Select file");
         if (pathChoosed != 1) {
             txtPath.setText(fileChoser.getSelectedFile().getAbsolutePath());
@@ -276,41 +271,57 @@ public class InterfazFusion extends javax.swing.JFrame {
 
     private void btnStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStartActionPerformed
         String strFileTested = txtPath.getText();
-        path = strFileTested.trim();
-
-        String[] appArr = path.split("/");
-        System.out.println(Arrays.toString(appArr));
-        int sizePath = appArr.length - 1;
-        String appName = appArr[sizePath];
         EnergyCheckUtils.pathApp = strFileTested;
         EnergyCheckUtils.flag = true;
+        EnergyCheckUtils energy = new EnergyCheckUtils();
         File fileTested = new File(strFileTested);
         ExecutorService exec = Executors.newSingleThreadExecutor();
+        if (paused == true) {
+            EnergyCheckUtils.flag = true;
+        }
         if (paused == false) {
             if (fileTested.exists()) {
                 if (rbtnJRAPL.isSelected() && rbtnPower.isSelected()) {
-                    JOptionPane.showMessageDialog(null, "Ambos");
+                    try {
+                        twiceFrameworks = "true";
+                        JOptionPane.showMessageDialog(null, "Ambos");
+                        strFileTested = txtPath.getText();
+                        whenStarted();
+                        twiceFrameworks = "true";
+                        energy.framework(strFileTested);
+                        while (EnergyCheckUtils.lock == true) {
+                            System.out.println("1");
+                        }
+                        EnergyCheckUtils.flag = true;
+                        whenFinished();
+                        exec.submit(powerAPIWorker);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (IOException ex) {
+                        Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+//                    System.out.println("exec if======================================================");
+//                    energy.powerAPI(txtPath.getText());
+                    load();
+                    
                 }
                 if (rbtnJRAPL.isSelected() && !rbtnPower.isSelected()) {
                     JOptionPane.showMessageDialog(null, "Solo JRAPL");
-//                    btnLoading.setVisible(true);
-//                    txtStatus.setText("La medición ha empezado...\nObteniendo datos...");
+                    btnLoading.setVisible(true);
+                    txtStatus.setText("La medición ha empezado...\nObteniendo datos...");
 //                    exec.submit(worker);
                 }
                 if (rbtnPower.isSelected() && !rbtnJRAPL.isSelected()) {
                     JOptionPane.showMessageDialog(null, "Solo Power");
-//                    btnLoading.setVisible(true);
-//                    exec.submit(powerAPIWorker);
+                    btnLoading.setVisible(true);
+                    exec.submit(powerAPIWorker);
                 }
             }
 
             if (!fileTested.exists()) {
-                JOptionPane.showMessageDialog(this, "La ruta especificada del archivo de prueba no es válido", "Aviso!", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "La ruta especificada del archivo a medir no es válido", "Aviso!", JOptionPane.ERROR_MESSAGE);
             }
 
-        }
-        if (paused == true) {
-            EnergyCheckUtils.flag = true;
         }
     }//GEN-LAST:event_btnStartActionPerformed
 
@@ -347,10 +358,13 @@ public class InterfazFusion extends javax.swing.JFrame {
     boolean paused = false;
 
     Runnable powerAPIWorker = new Runnable() {
+        EnergyCheckUtils energy = new EnergyCheckUtils();
         @Override
         public void run() {
+            System.out.println("ACTIVATEDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD");
             energy.powerAPI(txtPath.getText());
             load();
+            twiceFrameworks = "false";
         }
 
     };
@@ -367,29 +381,31 @@ public class InterfazFusion extends javax.swing.JFrame {
         btnResults.setVisible(true);
     }
 
-    Runnable worker = new Runnable() {
-        @Override
-        public void run() {
-            try {
-                String strFileTested = txtPath.getText();
-                File fileTested = new File(strFileTested);
-                whenStarted();
-                energy.framework(strFileTested);
-                while (EnergyCheckUtils.lock == true) {
-                    System.out.println("1");
-                }
-                EnergyCheckUtils.flag = true;
-                whenFinished();
-                if (!fileTested.exists()) {
-                    JOptionPane.showMessageDialog(null, "La ruta especificada del archivo de prueba no es válido", "Aviso!", JOptionPane.ERROR_MESSAGE);
-                }
-            } catch (InterruptedException ex) {
-                Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IOException ex) {
-                Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    };
+//    Runnable worker = new Runnable() {
+//        EnergyCheckUtils energy = new EnergyCheckUtils();
+//        @Override
+//        public void run() {
+//            try {
+//                String strFileTested = txtPath.getText();
+//                whenStarted();
+//                twiceFrameworks = "true";
+//                energy.framework(strFileTested);
+//                while (EnergyCheckUtils.lock == true) {
+//                    System.out.println("1");
+//                }
+//                EnergyCheckUtils.flag = true;
+//                whenFinished();
+////                twiceFrameworks = "false";
+////                if (!fileTested.exists()) {
+////                    JOptionPane.showMessageDialog(null, "La ruta especificada del archivo a medir no es válido", "Aviso!", JOptionPane.ERROR_MESSAGE);
+////                }
+//            } catch (InterruptedException ex) {
+//                Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
+//            } catch (IOException ex) {
+//                Logger.getLogger(InterfazFusion.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        }
+//    };
 
     public void whenStarted() {
         btnPause.setEnabled(true);
@@ -468,8 +484,8 @@ public class InterfazFusion extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JRadioButton rbtnJRAPL;
-    private javax.swing.JRadioButton rbtnPower;
+    public javax.swing.JRadioButton rbtnJRAPL;
+    public javax.swing.JRadioButton rbtnPower;
     private javax.swing.JTextField txtPath;
     public static javax.swing.JTextArea txtStatus;
     // End of variables declaration//GEN-END:variables
