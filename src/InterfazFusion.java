@@ -272,12 +272,12 @@ public class InterfazFusion extends javax.swing.JFrame {
     private void btnStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStartActionPerformed
         String strFileTested = txtPath.getText();
         EnergyCheckUtils.pathApp = strFileTested;
-        EnergyCheckUtils.flag = true;
+        EnergyCheckUtils.jraplRepeat = true;
         EnergyCheckUtils energy = new EnergyCheckUtils();
         File fileTested = new File(strFileTested);
         ExecutorService exec = Executors.newSingleThreadExecutor();
         if (paused == true) {
-            EnergyCheckUtils.flag = true;
+            EnergyCheckUtils.jraplRepeat = true;
         }
         if (paused == false) {
             if (fileTested.exists()) {
@@ -292,7 +292,7 @@ public class InterfazFusion extends javax.swing.JFrame {
                         while (EnergyCheckUtils.lock == true) {
                             System.out.println("1");
                         }
-                        EnergyCheckUtils.flag = true;
+                        EnergyCheckUtils.jraplRepeat = true;
                         whenFinished();
                         exec.submit(powerAPIWorker);
                     } catch (InterruptedException ex) {
@@ -421,13 +421,13 @@ public class InterfazFusion extends javax.swing.JFrame {
     }
 
     public void changeValues() {
-        if (EnergyCheckUtils.flag == true) {
+        if (EnergyCheckUtils.jraplRepeat == true) {
             btnStart.setEnabled(false);
             btnStop.setEnabled(true);
             btnPause.setEnabled(true);
             txtStatus.setText("La medición ha finalizado con exito");
         }
-        if (EnergyCheckUtils.flag == false) {
+        if (EnergyCheckUtils.jraplRepeat == false) {
             btnStart.setEnabled(true);
             btnStop.setEnabled(false);
             btnPause.setEnabled(false);
