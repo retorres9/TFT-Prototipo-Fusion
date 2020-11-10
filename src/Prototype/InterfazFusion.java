@@ -1,3 +1,4 @@
+package Prototype;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -5,8 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
